@@ -2,6 +2,7 @@ import gui_components as gc
 import config as c
 import board
 from functools import partial
+from external import open_file, open_url
 
 class ViewTask(gc.Tk):
     def __init__(self, task: dict, **kw) -> None:
@@ -13,8 +14,14 @@ class ViewTask(gc.Tk):
 
         for count, value in enumerate(task["layout"]):
             gc.Label(self, text=value[0].lower()+": ", font=c.config["font"]["default"]).grid(column=0, row=count+1, sticky=gc.W)
-            if value[0] in ("URL", "FILE"):
-                gc.Label(self, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2").grid(column=1, row=count+1, sticky=gc.W)
+            if value[0] == "URL":
+                url = gc.Label(self, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                url.grid(column=1, row=count+1, sticky=gc.W)
+                url.bind("<Button-1>", partial(open_url, value[1]))
+            elif value[0] == "FILE":
+                file = gc.Label(self, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                file.grid(column=1, row=count+1, sticky=gc.W)
+                file.bind("<Button-1>", partial(open_file, value[1]))
             elif value[0] == "TEXT":
                 gc.Label(self, text=value[1], font=c.config["font"]["default"]).grid(column=1, row=count+1, sticky=gc.W)
             elif value[0] == "SLIDER":
@@ -165,8 +172,11 @@ class MainWindow(gc.Tk):
                 self.selected = board.workboard[self.listboxes[listbox].get(selected_index[0])]
 
                 for i in self.selected["layout"]:
-                    if i[0] in ("URL", "FILE"):
-                        self.menu.add_command(label="Open {0}".format(i[0].lower()))
+                    if i[0] == "URL":
+                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_url, i[1]))
+                    elif i[0] == "FILE":
+                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_file, i[1]))
+
 
                 self.menu.add_separator()
                 self.menu.add_command(label="Delete", command=self.delete_task)
