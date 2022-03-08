@@ -1,5 +1,6 @@
 from .bar import Bar
 from .slider import Slider
+from .centerframe import CenterFrame
 
 # GUI
 from tkinter import *

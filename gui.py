@@ -5,27 +5,38 @@ from functools import partial
 from external import open_file, open_url
 
 class ViewTask(gc.Tk):
-    def __init__(self, task: dict, **kw) -> None:
+    def __init__(self, main_window: gc.Tk, task: dict, **kw) -> None:
         super().__init__(**kw)
 
         self.task = task
 
-        gc.Label(self, text=task["title"], font=c.config["font"]["title"]).grid(column=0, row=0, columnspan=2, sticky=gc.W)
+        # ---------------------------
+        self.geometry("{0}x{1}".format(main_window.winfo_width(), main_window.winfo_height()))
+
+        slider_length = main_window.winfo_width()//2
+
+        frame = gc.CenterFrame(self)
+
+        gc.Label(frame, text=task["title"], font=c.config["font"]["title"]).grid(column=0, row=0, columnspan=2, sticky=gc.W)
 
         for count, value in enumerate(task["layout"]):
-            gc.Label(self, text=value[0].lower()+": ", font=c.config["font"]["default"]).grid(column=0, row=count+1, sticky=gc.W)
+            gc.Label(frame, text=value[0].lower()+": ", font=c.config["font"]["default"]).grid(column=0, row=count+1, sticky=gc.E)
+
             if value[0] == "URL":
-                url = gc.Label(self, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                url = gc.Label(frame, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
                 url.grid(column=1, row=count+1, sticky=gc.W)
                 url.bind("<Button-1>", partial(open_url, value[1]))
+
             elif value[0] == "FILE":
-                file = gc.Label(self, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                file = gc.Label(frame, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
                 file.grid(column=1, row=count+1, sticky=gc.W)
                 file.bind("<Button-1>", partial(open_file, value[1]))
+
             elif value[0] == "TEXT":
-                gc.Label(self, text=value[1], font=c.config["font"]["default"]).grid(column=1, row=count+1, sticky=gc.W)
+                gc.Label(frame, text=value[1], font=c.config["font"]["default"]).grid(column=1, row=count+1, sticky=gc.W)
+
             elif value[0] == "SLIDER":
-                gc.Slider(self, value[1], "green", haslabel=True, font=c.config["font"]["default"], height=50, width=200).grid(column=1, row=count+1, sticky=gc.W)
+                gc.Slider(frame, value[1], "green", haslabel=True, font=c.config["font"]["default"], height=50, width=slider_length, bg="lightgrey").grid(column=1, row=count+1, sticky=gc.W)
         
         self.update()
 
@@ -40,19 +51,22 @@ class EditTask(gc.Tk):
         self.listbox_index = listbox_index
         self.old_title = title
 
-        gc.Label(self, text="Editing...", font=c.config["font"]["title"]).grid(column=0, row=0)
+        # -----------------------------
+        self.geometry("{0}x{1}".format(main_window.winfo_width()//2, main_window.winfo_height()))
 
-        add_frame = gc.Frame(self)
-        self.part_frame = gc.Frame(self)
+        frame = gc.CenterFrame(self)
 
-        add_frame.grid(column=0, row=1)
-        self.part_frame.grid(column=0, row=2)
+        add_frame = gc.Frame(frame)
+        self.part_frame = gc.Frame(frame)
+
+        add_frame.grid(column=0, row=0)
+        self.part_frame.grid(column=0, row=1)
 
         for count, i in enumerate(("URL", "FILE", "TEXT", "SLIDER")):
             gc.Button(add_frame, text="+"+i.lower(), font=c.config["font"]["default"], command=partial(self.add_part, i)).grid(column=count, row=0)
         
         button_text = "Save" if len(fields) else "Create"
-        gc.Button(self, text=button_text, font=c.config["font"]["default"], command=self.save).grid(column=0, row=3)
+        gc.Button(frame, text=button_text, font=c.config["font"]["default"], command=self.save, width=20).grid(column=0, row=2)
 
         # adding parts
         gc.Label(self.part_frame, text="Title: ", font=c.config["font"]["default"]).grid(column=0, row=0)
@@ -190,7 +204,7 @@ class MainWindow(gc.Tk):
         task.title("Create Task")
 
     def view_task(self) -> None:
-        task = ViewTask(self.selected)
+        task = ViewTask(self, self.selected)
         task.title(self.selected["title"])
 
     def edit_task(self) -> None:
