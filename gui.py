@@ -212,6 +212,7 @@ class MainWindow(gc.Tk):
             else:
                 return
         self.listboxes[current_board-1].delete(self.listboxes[current_board-1].get(0, gc.END).index(self.selected["title"]))
+        board.save()
 
     def delete_task(self) -> None:
         current_board = board.workboard[self.selected["title"]]["board"]
