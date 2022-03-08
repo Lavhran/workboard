@@ -9,6 +9,7 @@ class ViewTask(gc.Tk):
         super().__init__(**kw)
 
         self.task = task
+        self.sliders = []
 
         # ---------------------------
         self.geometry("{0}x{1}".format(main_window.winfo_width(), main_window.winfo_height()))
@@ -36,9 +37,21 @@ class ViewTask(gc.Tk):
                 gc.Label(frame, text=value[1], font=c.config["font"]["default"]).grid(column=1, row=count+1, sticky=gc.W)
 
             elif value[0] == "SLIDER":
-                gc.Slider(frame, value[1], "green", haslabel=True, font=c.config["font"]["default"], height=50, width=slider_length, bg="lightgrey").grid(column=1, row=count+1, sticky=gc.W)
+                slider = gc.Slider(frame, value[1], "green", haslabel=True, font=c.config["font"]["default"], height=50, width=slider_length, bg="lightgrey")
+                slider.grid(column=1, row=count+1, sticky=gc.W)
+
+                slider.change_value(value[2])
+                self.sliders.append((count, slider))
         
+        if len(self.sliders):
+            gc.Button(frame, text="Commit changes", command=self.save, font=c.config["font"]["default"]).grid(column=1, sticky=gc.W)
+
         self.update()
+
+    def save(self) -> None:
+        for i in self.sliders:
+            board.workboard[self.task["title"]]["layout"][i[0]][2] = int(i[1].value)
+        board.save()
 
 class EditTask(gc.Tk):
     def __init__(self, main_window: gc.Tk, listbox_index: int, title: str="", fields: list=[], **kw) -> None:
@@ -104,7 +117,7 @@ class EditTask(gc.Tk):
         for i in range(len(self.entries)):
             try:
                 if self.entries[i][0] == "SLIDER":
-                    self.entries[i] = (self.entries[i][0], int(self.entries[i][1].get()))
+                    self.entries[i] = (self.entries[i][0], int(self.entries[i][1].get()), 0)
                 else:
                     self.entries[i] = (self.entries[i][0], self.entries[i][1].get())
             except:
