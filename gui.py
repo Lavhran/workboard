@@ -160,7 +160,9 @@ class MainWindow(gc.Tk):
             horisontal_scrollbar = gc.Scrollbar(self, command=listbox.xview, orient='horizontal')
 
             listbox.configure(yscrollcommand=vertical_scrollbar.set, xscrollcommand=horisontal_scrollbar.set)
-            listbox.bind("<Button-3>", lambda event, x=count: self.show_menu(x, event))
+            listbox.bind("<ButtonRelease-1>", lambda event, x=count: self.get_selected(x, event))
+            listbox.bind("<Double-Button-1>", self.view_task)
+            listbox.bind("<Button-3>", self.show_menu)
 
             label.grid(column=count*2, row=0, columnspan=2)
             listbox.grid(column=count*2, row=1)
@@ -174,36 +176,34 @@ class MainWindow(gc.Tk):
 
         self.menu = gc.Menu(self, tearoff=0, font=c.config["font"]["default"])
         self.menu.add_command(label="Create New...", command=self.create_task)
-        self.menu.add_command(label="View...", command=self.view_task)
-        self.menu.add_command(label="Edit...", command=self.edit_task)
-        self.menu.add_separator()
-        self.menu.add_command(label="--->", command=lambda: self.move_task(True))
-        self.menu.add_command(label="<---", command=lambda: self.move_task(False))
+        self.create_menu()
 
-    def show_menu(self, listbox, event) -> None:
+    def get_selected(self, listbox, event) -> None:
         try:
             selected_index = self.listboxes[listbox].curselection()
-            if not len(selected_index):
+            if len(selected_index):
+                self.selected = board.workboard[self.listboxes[listbox].get(selected_index[0])]
+            else:
+                raise
+        except:
+            self.selected = None
+
+    def show_menu(self, event) -> None:
+        try:
+            if not self.selected:
                 self.menu.delete(1, gc.END)
             else:
                 if len(self.menu.children) < 6:
-                    self.menu.add_command(label="View...", command=self.view_task)
-                    self.menu.add_command(label="Edit...", command=self.edit_task)
-                    self.menu.add_separator()
-                    self.menu.add_command(label="--->", command=lambda: self.move_task(True))
-                    self.menu.add_command(label="<---", command=lambda: self.move_task(False))
+                    self.create_menu()
 
                 self.menu.delete(6, gc.END)
                 self.menu.add_separator()
-
-                self.selected = board.workboard[self.listboxes[listbox].get(selected_index[0])]
 
                 for i in self.selected["layout"]:
                     if i[0] == "URL":
                         self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_url, i[1]))
                     elif i[0] == "FILE":
                         self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_file, i[1]))
-
 
                 self.menu.add_separator()
                 self.menu.add_command(label="Delete", command=self.delete_task)
@@ -212,13 +212,21 @@ class MainWindow(gc.Tk):
         finally:
             self.menu.grab_release()
 
+    def create_menu(self) -> None:
+        self.menu.add_command(label="View...", command=self.view_task)
+        self.menu.add_command(label="Edit...", command=self.edit_task)
+        self.menu.add_separator()
+        self.menu.add_command(label="--->", command=lambda: self.move_task(True))
+        self.menu.add_command(label="<---", command=lambda: self.move_task(False))
+
     def create_task(self) -> None:
         task = EditTask(self, -1)
         task.title("Create Task")
 
-    def view_task(self) -> None:
-        task = ViewTask(self, self.selected)
-        task.title(self.selected["title"])
+    def view_task(self, event=None) -> None:
+        if self.selected:
+            task = ViewTask(self, self.selected)
+            task.title(self.selected["title"])
 
     def edit_task(self) -> None:
         task = EditTask(self, self.selected["board"]-1, self.selected["title"], self.selected["layout"])
