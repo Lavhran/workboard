@@ -118,7 +118,7 @@ class EditTask(gc.Tk):
         for i in range(len(self.entries)):
             try:
                 if self.entries[i][0] == "SLIDER":
-                    self.entries[i] = (self.entries[i][0], int(self.entries[i][1].get()), 0)
+                    self.entries[i] = [self.entries[i][0], int(self.entries[i][1].get()), 0]
                 else:
                     self.entries[i] = (self.entries[i][0], self.entries[i][1].get())
             except:
