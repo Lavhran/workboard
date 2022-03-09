@@ -1,8 +1,8 @@
 import gui_components as gc
+import gui_functions as gf
 import config as c
 import board
 from functools import partial
-from external import open_file, open_url
 
 class ViewTask(gc.Tk):
     def __init__(self, main_window: gc.Tk, task: dict, **kw) -> None:
@@ -21,20 +21,21 @@ class ViewTask(gc.Tk):
         gc.Label(frame, text=task["title"], font=c.config["font"]["title"]).grid(column=0, row=0, columnspan=2, sticky=gc.W)
 
         for count, value in enumerate(task["layout"]):
-            gc.Label(frame, text=value[0].lower()+": ", font=c.config["font"]["default"]).grid(column=0, row=count+1, sticky=gc.E)
+            if value[0] in c.config["view"]["labeled"]:
+                gc.Label(frame, text=value[0].lower()+": ", font=c.config["font"]["default"], justify=gc.RIGHT).grid(column=0, row=count+1, sticky=gc.NE)
 
             if value[0] == "URL":
-                url = gc.Label(frame, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                url = gc.Label(frame, text=gf.fix_text(value[1]), font=c.config["font"]["default"], fg="blue", cursor="hand2", justify=gc.LEFT)
                 url.grid(column=1, row=count+1, sticky=gc.W)
-                url.bind("<Button-1>", partial(open_url, value[1]))
+                url.bind("<Button-1>", partial(gf.open_url, value[1]))
 
             elif value[0] == "FILE":
-                file = gc.Label(frame, text=value[1], font=c.config["font"]["default"], fg="blue", cursor="hand2")
+                file = gc.Label(frame, text=gf.fix_text(value[1]), font=c.config["font"]["default"], fg="blue", cursor="hand2", justify=gc.LEFT)
                 file.grid(column=1, row=count+1, sticky=gc.W)
-                file.bind("<Button-1>", partial(open_file, value[1]))
+                file.bind("<Button-1>", partial(gf.open_file, value[1]))
 
             elif value[0] == "TEXT":
-                gc.Label(frame, text=value[1], font=c.config["font"]["default"]).grid(column=1, row=count+1, sticky=gc.W)
+                gc.Label(frame, text=value[1], font=c.config["font"]["default"], justify=gc.LEFT).grid(column=1, row=count+1, sticky=gc.W)
 
             elif value[0] == "SLIDER":
                 slider = gc.Slider(frame, value[1], "green", haslabel=True, font=c.config["font"]["default"], height=50, width=slider_length, bg="lightgrey")
@@ -201,9 +202,9 @@ class MainWindow(gc.Tk):
 
                 for i in self.selected["layout"]:
                     if i[0] == "URL":
-                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_url, i[1]))
+                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(gf.open_url, i[1]))
                     elif i[0] == "FILE":
-                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(open_file, i[1]))
+                        self.menu.add_command(label="Open {0}".format(i[0].lower()), command=partial(gf.open_file, i[1]))
 
                 self.menu.add_separator()
                 self.menu.add_command(label="Delete", command=self.delete_task)

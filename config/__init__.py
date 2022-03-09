@@ -17,5 +17,9 @@ except:
     config["board"] = {
         "groups": ["Backlog", "Work in progress", "Done"],
         "path": "board.json"}
+    config["view"] = {
+        "maxlinklength": 40,
+        "mode": "break", # dot or break
+        "labeled": ["URL", "FILE", "SLIDER"]}
     save()
 
