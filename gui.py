@@ -118,7 +118,7 @@ class EditTask(gc.Tk):
         for i in range(len(self.entries)):
             try:
                 if self.entries[i][0] == "SLIDER":
-                    self.entries[i] = (self.entries[i][0], int(self.entries[i][1].get()), 0)
+                    self.entries[i] = [self.entries[i][0], int(self.entries[i][1].get()), 0]
                 else:
                     self.entries[i] = (self.entries[i][0], self.entries[i][1].get())
             except:
@@ -143,6 +143,7 @@ class EditTask(gc.Tk):
                 self.main_window.listboxes[self.listbox_index].delete(index)
                 self.main_window.listboxes[self.listbox_index].insert(index, self.entries[0][1])
 
+        self.main_window.selected = board.workboard[self.entries[0][1]]
         self.destroy()
 
 
