@@ -143,6 +143,7 @@ class EditTask(gc.Tk):
                 self.main_window.listboxes[self.listbox_index].delete(index)
                 self.main_window.listboxes[self.listbox_index].insert(index, self.entries[0][1])
 
+        self.main_window.selected = board.workboard[self.entries[0][1]]
         self.destroy()
 
 
