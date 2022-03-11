@@ -20,6 +20,11 @@ class Bar(Canvas):
                 self.width//2, self.height//2, anchor=CENTER, text='0', font=font)
 
     def change_value(self, value: int) -> None:
+        if value > self.range:
+            value = self.range
+        elif value < 0:
+            value = 0
+            
         self.value = value
         if self.haslabel:
             self.itemconfigure(self.label, text=str(value))
