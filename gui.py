@@ -237,7 +237,7 @@ class MainWindow(gc.Tk):
     def move_task(self, dir: bool) -> None:
         current_board = board.workboard[self.selected["title"]]["board"]
         if dir:
-            if not current_board >= 3:
+            if not current_board >= len(c.config["board"]["groups"]):
                 board.workboard[self.selected["title"]]["board"] += 1
                 self.listboxes[current_board].insert(gc.END, self.selected["title"])
             else:
