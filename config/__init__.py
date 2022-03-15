@@ -10,16 +10,27 @@ try:
     with open(CONFIGFILE, "r") as f:
         config = json.load(f)
 except:
-    config = {}
-    config["font"] = {
-        "title": ["Helvetica", 14],
-        "default": ["Arial", 11]}
-    config["board"] = {
-        "groups": ["Backlog", "Work in progress", "Done"],
-        "path": "board.json"}
-    config["view"] = {
-        "maxlinklength": 40,
-        "mode": "break", # dot or break
-        "labeled": ["URL", "FILE", "SLIDER"]}
+    config = {
+        'font': {
+            'title': ['Helvetica', 14],
+            'default': ['Arial', 11]
+        },
+        'board': {
+            'groups': [
+                "Backlog",
+                "Work in progress",
+                "Done"
+            ],
+            'path': "board.json"
+        },
+        'view': {
+            'maxlinklength': 40,
+            'mode': "break",
+            'labeled': [
+                "URL",
+                "FILE"
+            ]
+        }
+    }
     save()
 
