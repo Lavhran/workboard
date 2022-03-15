@@ -174,7 +174,10 @@ class MainWindow(gc.Tk):
             self.listboxes.append(listbox)
 
         for k, v in board.workboard.items():
-            self.listboxes[v["board"]-1].insert(gc.END, v["title"])
+            try:
+                self.listboxes[v["board"]-1].insert(gc.END, v["title"])
+            except IndexError:
+                continue
 
         self.menu = gc.Menu(self, tearoff=0, font=c.config["font"]["default"])
         self.menu.add_command(label="Create New...", command=self.create_task)
