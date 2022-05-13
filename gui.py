@@ -1,5 +1,6 @@
 import gui_components as gc
 import gui_functions as gf
+import tkinter.filedialog as fd 
 import config as c
 import board
 from functools import partial
@@ -97,9 +98,21 @@ class EditTask(gc.Tk):
     def add_part(self, type: str, value="") -> None:
         gc.Label(self.part_frame, text=type.lower()+": ", font=c.config["font"]["default"]).grid(column=0, row=self.new_row)
         
-        part_entry = gc.Entry(self.part_frame, font=c.config["font"]["default"])
+        if type == "FILE":
+            frame = gc.Frame(self.part_frame)
+            frame.grid(column=1, row=self.new_row, sticky=gc.W)
+        else:
+            frame = self.part_frame
+
+        part_entry = gc.Entry(frame, font=c.config["font"]["default"])
         part_entry.insert(gc.END, value)
-        part_entry.grid(column=1, row=self.new_row)
+
+        if type == "FILE":
+            part_entry.configure(width=part_entry["width"]-6)
+            part_entry.grid(column=0, row=0)
+            gc.Button(frame, font=c.config["font"]["default"], text="open", command=lambda: self.set_file(part_entry)).grid(column=1, row=0)
+        else:
+            part_entry.grid(column=1, row=self.new_row)
 
         gc.Button(self.part_frame, font=c.config["font"]["default"], text="-", command=partial(self.remove_part, self.new_row)).grid(column=2, row=self.new_row)
 
@@ -113,6 +126,12 @@ class EditTask(gc.Tk):
                 break
         for i in self.part_frame.grid_slaves(index):
             i.destroy()
+
+    def set_file(self, entry) -> None:
+        file = fd.askopenfilename()
+        if file:
+            entry.delete(0, gc.END)
+            entry.insert(gc.END, file)
 
     def save(self) -> None:
         for i in range(len(self.entries)):
